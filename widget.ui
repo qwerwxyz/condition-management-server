@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1055</width>
+    <height>570</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Widget</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+  </property>
+  <widget class="QPushButton" name="pushButton_3">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>90</y>
+     <width>131</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+		background-color:rgb(255, 255, 255);
+        border-style:outset;                 
+        border-width:4px;                                   
+		border-radius:20px;                
+ 		border-color:rgb(89, 225, 255);                    
+		
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+	color: rgb(0, 255, 255);
+
+}
+QPushButton:pressed
+{
+background-color:rgba(100,255,100,200);
+border-color:rgba(255,255,255,30);
+border-style:inset;
+color:rgba(0,0,0,100);
+}
+QPushButton:!enabled{ 
+
+background-color: rgb(199, 199, 199);
+
+border-style: inset; 
+
+}</string>
+   </property>
+   <property name="text">
+    <string>OFF</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>90</y>
+     <width>131</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+		background-color:rgb(255, 255, 255);
+        border-style:outset;                 
+        border-width:4px;                                   
+		border-radius:20px;                
+ 		border-color:rgb(89, 225, 255);
+		
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+	color:rgb(0, 255, 234);
+
+}
+QPushButton:pressed
+{
+background-color:rgba(100,255,100,200);
+border-color:rgba(255,255,255,30);
+border-style:inset;
+color:rgba(0,0,0,100);
+}
+QPushButton:!enabled{ 
+
+background-color: rgb(199, 199, 199);
+
+border-style: inset; 
+
+}</string>
+   </property>
+   <property name="text">
+    <string>ON</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>180</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+		background-color:rgb(255, 255, 255);
+        border-style:outset;                 
+        border-width:4px;                                   
+		border-radius:20px;                
+ 		border-color:rgb(89, 225, 255);                  
+		
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+	color: rgb(0, 255, 255);
+
+}
+QPushButton:pressed
+{
+background-color:rgba(100,255,100,200);
+border-color:rgba(255,255,255,30);
+border-style:inset;
+color:rgba(0,0,0,100);
+}
+QPushButton:!enabled{ 
+
+background-color: rgb(199, 199, 199);
+
+border-style: inset; 
+
+}</string>
+   </property>
+   <property name="text">
+    <string>模式切换</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>240</y>
+     <width>131</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+   </property>
+   <property name="text">
+    <string>showMODEL</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>255</y>
+     <width>101</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+   </property>
+   <property name="text">
+    <string>当前工作模式</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_5">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>310</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+		background-color:rgb(255, 255, 255);
+        border-style:outset;                 
+        border-width:4px;                                   
+		border-radius:20px;                
+ 		border-color:rgb(89, 225, 255);                  
+		
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+	color: rgb(0, 255, 255);
+
+}
+QPushButton:pressed
+{
+background-color:rgba(100,255,100,200);
+border-color:rgba(255,255,255,30);
+border-style:inset;
+color:rgba(0,0,0,100);
+}
+QPushButton:!enabled{ 
+
+background-color: rgb(199, 199, 199);
+
+border-style: inset; 
+
+}</string>
+   </property>
+   <property name="text">
+    <string>温度范围设置</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>390</y>
+     <width>101</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>showTEM</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>380</y>
+     <width>121</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+   </property>
+   <property name="text">
+    <string>当前设置缺省温度</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_6">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>440</y>
+     <width>121</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+		background-color:rgb(255, 255, 255);
+        border-style:outset;                 
+        border-width:4px;                                   
+		border-radius:20px;                
+ 		border-color:rgb(89, 225, 255);                 
+		
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+	color: rgb(0, 255, 255);
+
+}
+QPushButton:pressed
+{
+background-color:rgba(100,255,100,200);
+border-color:rgba(255,255,255,30);
+border-style:inset;
+color:rgba(0,0,0,100);
+}
+QPushButton:!enabled{ 
+
+background-color: rgb(199, 199, 199);
+
+border-style: inset; 
+
+}</string>
+   </property>
+   <property name="text">
+    <string>计费模式设置</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>520</y>
+     <width>121</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+   </property>
+   <property name="text">
+    <string>当前设计计费模式</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>520</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel
+{	
+	font: 9pt &quot;汉仪蝶语体简&quot;;
+}</string>
+   </property>
+   <property name="text">
+    <string>showFREE</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
