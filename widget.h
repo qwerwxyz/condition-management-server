@@ -67,9 +67,9 @@ private:
 
 
     int stand;//计费标准
-    QMap<int,tuple<QString,QJsonObject,time_t>> waitinglist;
+    QMap<int,WaitQueueObject> waitinglist;
     //QList<tuple<QString,QJsonObject,time_t>> waitinglist;//等待队列，存进入等待队列的原因，协议，等待服务时间
-    QMap<int,tuple<QJsonObject,time_t>> serveinglist;
+    QMap<int,ServeQueueObject> serveinglist;
     //QList<tuple<QJsonObject,time_t>> serveinglist;//服务队列，协议，服务开始时间
     QMap<int,SingleSubMacInfo> submacinfo;   //房间信息列表
 

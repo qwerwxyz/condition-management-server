@@ -57,15 +57,9 @@ void Widget::parseData(QJsonObject subrespond)
         qDebug()<<"接收到一个更改风速请求";
         windspeed = subrespond.value("requiredwindspeed").toVariant().toInt();
         if(serveinglist.contains(roomid)){//如果该房间在服务队列中服务
-            tuple<QJsonObject,time_t>fromserve = serveinglist[roomid];
-//            serveinglist.remove(roomid);
-            QJsonObject json;//拆包修改协议里的风速
-            json.insert("Action",get<0>(fromserve)["Action"].toString());
-            json.insert("requiredwindspeed",windspeed);
-            json.insert("roomID",get<0>(fromserve)["roomID"].toInt());
+            serveinglist[roomid].windspeed = windspeed;
             time_t servetime = time(NULL);
-            tuple<QJsonObject,time_t>toserve = make_tuple(json,servetime);
-            serveinglist.insert(roomid,toserve);
+            serveinglist[roomid].starttime = servetime;
             this->subMachineRequestWindServequeue(roomid,windspeed);
         }
         else if (waitinglist.contains(roomid)){
@@ -74,30 +68,28 @@ void Widget::parseData(QJsonObject subrespond)
             if(findid == -2 || findid == -1){
                 if(findid == -2)reason = "small";
                 else reason = "equality";
-                tuple<QString,QJsonObject,time_t>fromserve = waitinglist[roomid];
-//                waitinglist.remove(roomid);
-                QJsonObject json;//拆包修改协议里的风速
-                json.insert("Action",get<1>(fromserve)["Action"].toString());
-                json.insert("requiredwindspeed",windspeed);
-                json.insert("roomID",get<1>(fromserve)["roomID"].toInt());
+                waitinglist[roomid].reason = reason;
+                waitinglist[roomid].windspeed = windspeed;
                 time_t waittime = time(NULL);
-                tuple<QString,QJsonObject,time_t>towait = make_tuple(reason,json,waittime);
-                waitinglist.insert(roomid,towait);
+                waitinglist[roomid].starttime = waittime;
+                waitinglist[roomid].roomid = roomid;
+                waitinglist[roomid].temp = submacinfo[roomid].targetT;
                 this->subMachineRequestWindWaitqueue(roomid,windspeed);
             }
             else {
                 reason = "iskicked";
-                tuple<QJsonObject,time_t> tpfromserve = serveinglist[findid];
-                QJsonObject protocol = get<0>(tpfromserve);
+                ServeQueueObject qfromserve = serveinglist[findid];
+//                QJsonObject protocol = get<0>(tpfromserve);
                 time_t waittime = time(NULL);
-                tuple<QString,QJsonObject,time_t> tptowait = make_tuple(reason,protocol,waittime);
-                waitinglist.insert(protocol["roomID"].toInt(),tptowait);
+                WaitQueueObject towait(qfromserve.roomid,qfromserve.windspeed,waittime,qfromserve.temp,reason);
+//                tuple<QString,QJsonObject,time_t> tptowait = make_tuple(reason,protocol,waittime);
+                waitinglist.insert(towait.roomid,towait);
                 this->subMachineRemoveServeQueue(findid);
                 serveinglist.remove(findid);
 
                 time_t servetime = time(NULL);
-                tuple<QJsonObject,time_t>tptoserve = make_tuple(subrespond,servetime);
-                serveinglist.insert(roomid,tptoserve);
+                ServeQueueObject toserve(roomid,windspeed,servetime,submacinfo[roomid].targetT);
+                serveinglist.insert(roomid,toserve);
                 this->subMachineStartWind(roomid,windspeed);
             }
 
@@ -118,7 +110,7 @@ void Widget::parseData(QJsonObject subrespond)
             if(serveinglist.size() < queuelen){//如果队列小于3，可以直接进入服务队列
                 qDebug()<<"队列小于1，直接进入服务队列";
                 time_t servetime = time(NULL);
-                tuple<QJsonObject,time_t>toserve = make_tuple(subrespond,servetime);
+                ServeQueueObject toserve(roomid,windspeed,servetime,submacinfo[roomid].targetT);
                 serveinglist.insert(roomid,toserve);
                 this->subMachineStartWind(roomid,windspeed);
             }
@@ -132,35 +124,35 @@ void Widget::parseData(QJsonObject subrespond)
                     QString reason = "small";
                     qDebug()<<"没有比他小的";
                     time_t waittime = time(NULL);
-                    tuple<QString,QJsonObject,time_t>tptowait = make_tuple(reason,subrespond,waittime);
-                    waitinglist.insert(roomid,tptowait);
+                    WaitQueueObject towait(roomid,windspeed,waittime,submacinfo[roomid].targetT,reason);
+                    waitinglist.insert(roomid,towait);
                 }
                 else if (findid == -1){//有和它风速相等的，进入等待队列，等待两分钟
                     QString reason = "equality";
                     qDebug()<<"有和他一样的";
                     time_t waittime = time(NULL);
                     if(waitinglist.contains(roomid)){
-                        waittime = get<2>(waitinglist[roomid]);
+                        waittime = waitinglist[roomid].starttime;
                     }
-                    tuple<QString,QJsonObject,time_t>tptowait = make_tuple(reason,subrespond,waittime);
-                    waitinglist.insert(roomid,tptowait);
+                    WaitQueueObject towait(roomid,windspeed,waittime,submacinfo[roomid].targetT,reason);
+                    waitinglist.insert(roomid,towait);
                 }
                 else{//有比它小的,从服务队列中取出，计费，放入等待队列，将它放入服务队列
                     QString reason = "iskicked";
                     qDebug()<<"接收到一个停风请求";
                     qDebug()<<"有比他小的";
 
-                    tuple<QJsonObject,time_t> tpfromserve = serveinglist[findid];
-                    QJsonObject protocol = get<0>(tpfromserve);
+                    ServeQueueObject fromserve = serveinglist[findid];
+//                    QJsonObject protocol = get<0>(tpfromserve);
                     time_t waittime = time(NULL);
-                    tuple<QString,QJsonObject,time_t> tptowait = make_tuple(reason,protocol,waittime);
-                    waitinglist.insert(protocol["roomID"].toInt(),tptowait);
+                    WaitQueueObject towait(fromserve.roomid,fromserve.windspeed,waittime,fromserve.temp,reason);
+                    waitinglist.insert(towait.roomid,towait);
                     this->subMachineRemoveServeQueue(findid);
     //                serveinglist.remove(findid);
 
                     time_t servetime = time(NULL);
-                    tuple<QJsonObject,time_t>tptoserve = make_tuple(subrespond,servetime);
-                    serveinglist.insert(roomid,tptoserve);
+                    ServeQueueObject toserve(roomid,windspeed,servetime,submacinfo[roomid].targetT);
+                    serveinglist.insert(roomid,toserve);
                     serveinglist.remove(findid);
                     this->subMachineStartWind(roomid,windspeed);
                     if(waitinglist.contains(roomid)){
@@ -179,12 +171,12 @@ int Widget::findservespeed(int askspeed){
     long long losertime = 100000000;
     int findid = -2;
     int findsmall = 0;
-    QMap<int,tuple<QJsonObject,time_t>>::Iterator it = serveinglist.begin();
+    QMap<int,ServeQueueObject>::Iterator it = serveinglist.begin();
     while(it!=serveinglist.end()){
-        tuple<QJsonObject,time_t>item = it.value();
+        ServeQueueObject item = it.value();
         int roomid = it.key();
-        QJsonObject protocol = get<0>(item);
-        time_t waittime = get<1>(item);
+//        QJsonObject protocol = get<0>(item);
+        time_t waittime = item.starttime;
         SingleSubMacInfo curroom = submacinfo[roomid];
         qDebug()<< "curroom.speed"<<curroom.speed;
         qDebug()<< "askspeed"<<askspeed;
@@ -213,10 +205,10 @@ int Widget::findtime(QString str){ //找到等待/服务开始时间最靠前的
     long long earlytime = 100000000000;
     int roomid = -1;
     if (str == "wait"){
-        QMap<int,tuple<QString,QJsonObject,time_t>>::Iterator it = waitinglist.begin();
+        QMap<int,WaitQueueObject>::Iterator it = waitinglist.begin();
         while(it != waitinglist.end()){
-            tuple<QString,QJsonObject,time_t>tp = it.value();
-            time_t starttime  = get<2>(tp);
+            WaitQueueObject tp = it.value();
+            time_t starttime  = tp.starttime;
             if (earlytime > starttime){
                 earlytime = starttime;
                 roomid = it.key();
@@ -225,10 +217,10 @@ int Widget::findtime(QString str){ //找到等待/服务开始时间最靠前的
          }
     }
     else {
-        QMap<int,tuple<QJsonObject,time_t>>::Iterator it = serveinglist.begin();
+        QMap<int,ServeQueueObject>::Iterator it = serveinglist.begin();
         while(it != serveinglist.end()){
-            tuple<QJsonObject,time_t>tp = it.value();
-            time_t starttime  = get<1>(tp);
+            ServeQueueObject tp = it.value();
+            time_t starttime  = tp.starttime;
             if (earlytime > starttime){
                 earlytime = starttime;
                 roomid = it.key();
@@ -245,15 +237,15 @@ void Widget::waitqueuecheck(){//放在定时器中
     */
     qDebug()<<"定时检查队列";
     qDebug()<<"serveinglist"<<serveinglist.size();
-    QMap<int,tuple<QJsonObject,time_t>>::Iterator it2 = serveinglist.begin();
+    QMap<int,ServeQueueObject>::Iterator it2 = serveinglist.begin();
     while(it2 != serveinglist.end()){
-         qDebug()<<"在服务队列中的房间"<<it2.key()<<get<0>(it2.value())["Action"].toString();
+         qDebug()<<"在服务队列中的房间"<<it2.key();
         it2++;
     }
     qDebug()<<"waitinglist"<<waitinglist.size();
-    QMap<int,tuple<QString,QJsonObject,time_t>>::Iterator it1 = waitinglist.begin();
+    QMap<int,WaitQueueObject>::Iterator it1 = waitinglist.begin();
     while(it1 != waitinglist.end()){
-        qDebug()<<"在等待队列中的房间"<<it1.key()<<get<1>(it1.value())["Action"].toString();
+        qDebug()<<"在等待队列中的房间"<<it1.key();
         it1++;
     }
     if (serveinglist.size() < queuelen){
@@ -262,49 +254,47 @@ void Widget::waitqueuecheck(){//放在定时器中
             int roomid = this->findtime("wait");
             qDebug()<<"roomid:"<<roomid;
             qDebug()<<"waiting队列里有";
-            tuple<QString,QJsonObject,time_t>tpfromwait = waitinglist[roomid];
-            QJsonObject protocol = get<1>(tpfromwait);  //协议内容
-            QString reason = get<0>(tpfromwait);
+            WaitQueueObject fromwait = waitinglist[roomid];
+//            QJsonObject protocol = get<1>(tpfromwait);  //协议内容
+            QString reason = fromwait.reason;
             waitinglist.remove(roomid);
             time_t servetime = time(NULL);
-            int windspeed = protocol.value("requiredwindspeed").toVariant().toInt();
-            tuple<QJsonObject,time_t>tptoserve = make_tuple(protocol,servetime);
-            serveinglist.insert(roomid,tptoserve);
+            int windspeed = fromwait.windspeed;
+            ServeQueueObject toserve(fromwait.roomid,fromwait.windspeed,fromwait.starttime,fromwait.temp);
+            serveinglist.insert(roomid,toserve);
             this->subMachineStartWind(roomid,windspeed);
 
         }
 
     }
-    QMap<int,tuple<QString,QJsonObject,time_t>>::Iterator it = waitinglist.begin();
-    QMap<int,tuple<QString,QJsonObject,time_t>>::Iterator preit;
+    QMap<int, WaitQueueObject>::Iterator it = waitinglist.begin();
+    QMap<int,WaitQueueObject>::Iterator preit;
     while(it != waitinglist.end()){
         qDebug()<<"遍历等待队列，找2分钟相等";
         time_t curtime =  time(NULL);
-        tuple<QString,QJsonObject,time_t>tp = it.value();
-        QString reason = get<0>(tp);
-        QJsonObject protocol = get<1>(tp);  //协议内容
-        time_t starttime  = get<2>(tp);
-        int windspeed = protocol["requiredwindspeed"].toInt();
-        int roomid = protocol["roomID"].toInt();
+        WaitQueueObject tp = it.value();
+        QString reason = tp.reason;
+        time_t starttime  = tp.starttime;
+        int windspeed = tp.windspeed;
+        int roomid = tp.roomid;
         qDebug()<<reason;
         qDebug()<<(curtime - starttime);
         if ((reason == "equality") && (curtime - starttime) > 10){
             qDebug()<<"进入相等";//如果找到满足条件的，将他它从waiting队列中取出，替换服务队列服务时间最长的
             int findid = this->findtime("serve");
-            tuple<QJsonObject,time_t>tpfromserve = serveinglist[findid];
+            ServeQueueObject fromserve = serveinglist[findid];
             time_t waittime = time(NULL);
-            QString reasontowait = "iskicked";
-            tuple<QString,QJsonObject,time_t>tptowait = make_tuple(reasontowait,get<0>(tpfromserve),waittime);
-            waitinglist.insert(findid,tptowait);
+            QString reason = "iskicked";
+            WaitQueueObject towait(fromserve.roomid,fromserve.windspeed,waittime,fromserve.temp,reason);
+            waitinglist.insert(findid,towait);
             serveinglist.remove(findid);
             this->subMachineRemoveServeQueue(findid);
-
             preit = it;
             it++;
             waitinglist.erase(preit);
             time_t servetime = time(NULL);
-            tuple<QJsonObject,time_t>tptoserve = make_tuple(protocol,servetime);
-            serveinglist.insert(roomid,tptoserve);
+            ServeQueueObject toserve(roomid,windspeed,starttime,submacinfo[roomid].targetT);
+            serveinglist.insert(roomid,toserve);
             this->subMachineStartWind(roomid,windspeed);//处理新请求
             qDebug()<<"还是好的";
         }
